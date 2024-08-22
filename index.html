@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToDo...</title>
+<style>
+body {
+	margin: 0;
+	font-size: 20px;
+}
+* {
+	box-sizing: border-box;
+}
+h1 {
+	padding: 15px;
+}
+.task {
+	margin: 15px;
+	padding: 15px;
+	color: #ffff00;
+	background-color: #0000ff;
+	border-radius: 25px;
+}
+.ctask {
+	margin: 15px;
+	padding: 15px;
+	color: #ffff00;
+	background-color: #0000ff;
+	border-radius: 25px;
+	text-decoration: line-through;
+}
+#top {
+	padding: 20px 40px;
+	font: 100% Courier New;
+	line-height: 26px;
+	background-color: #78a98e;
+	color: #567d9c;
+	text-align: center;
+	overflow: hidden;
+}
+#addbutton {
+	padding: 10px;
+	width: 25%;
+	background: #d9d9d9;
+	color: #555;
+	float: left;
+	text-align: center;
+	font-size: 16px;
+	cursor: pointer;
+	transition: 0.3s;
+	border-radius: 0;
+}
+#inputfield {
+	margin: 0;
+	border: none;
+	border-radius: 0;
+	width: 75%;
+	padding: 10px;
+	float: left;
+	font-size: 16px;
+}
+.sameheight {
+	display: flex;
+}
+.items {
+border-radius: 10px;
+margin: 10px;
+padding: 5px;
+background-color: #dddddd;
+}
+#items {
+list-style: square url('stop.png');
+}
+#completed {
+list-style: square url('checkbox.png');
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+</head>
+<body>
+<div id="top">
+<h1>ToDo list</h1>
+<div class="sameheight">
+<input type="text" id="inputfield" placeholder="Task...">
+<span onclick="addTask()" id="addbutton">Add</span>
+</div>
+</div>
+<div class="items">
+<h4>ToDo:</h4>
+<ul id="items">
+	<li class="task">item 1</li>
+	<li class="task">item 2</li>
+	<li class="task">item 3</li>
+</ul>
+</div>
+<div class="items">
+<h4>Completed:</h4>
+<ul id="completed">
+	<li class="ctask" onclick="check_task(event)">done bro</li>
+	<li class="ctask">thik thik</li>
+</ul>
+</div>
+<script>
+function store_data(data) {
+	localStorage.setItem('data', JSON.stringify(data));
+}
+function check_task(event) {
+	if (event.offsetX < 0) {
+		data['completed'].unshift(event.target.textContent);
+		data['tasks'] = data['tasks'].filter(function(item) {
+			return item !== event.target.textContent;
+		})
+		update_tasks(data);
+	}
+}
+function uncheck_task(event) {
+	if (event.offsetX < 0) {
+		data['tasks'].unshift(event.target.textContent);
+		data['completed'] = data['completed'].filter(function(item) {
+			return item !== event.target.textContent;
+		})
+		update_tasks(data);
+	}
+}
+function update_tasks(d) {
+	while (document.getElementById('items').childElementCount != 0) {
+		document.getElementById('items').children[0].remove();
+	}
+	while (document.getElementById('completed').childElementCount != 0) {
+		document.getElementById('completed').children[0].remove();
+	}
+	for (t of d['tasks']) {
+		e = document.createElement("li");
+		e.classList.add('task');
+		e.appendChild(document.createTextNode(t));
+		e.setAttribute('onclick', 'check_task(event);');
+		document.getElementById('items').appendChild(e);
+	}
+	for (t of d['completed']) {
+		e = document.createElement("li");
+		e.classList.add('ctask');
+		e.appendChild(document.createTextNode(t));
+		e.setAttribute('onclick', 'uncheck_task(event);');
+		document.getElementById('completed').appendChild(e);
+	}
+	store_data(data);
+}
+function addTask() {
+	data['tasks'].unshift(document.getElementById('inputfield').value);
+	document.getElementById('inputfield').value = '';
+	update_tasks(data);
+}
+function delTask(event) {
+	i = event.target.parentElement.parentElement.id;
+	d = event.target.parentElement.textContent;
+	if (i == 'items') {
+		data['tasks'].filter(function(item) {
+			return item !== event.target.textContent;
+		});
+	} else {
+		data['completed'].filter(function(item) {
+			return item !== event.target.textContent;
+		});
+	}
+}
+data=localStorage.getItem('data');
+if (data) {
+	data = JSON.parse(data);
+} else {
+	data = {'tasks': [], 'completed': []};
+}
+update_tasks(data);
+Sortable.create(document.getElementById('items'));
+Sortable.create(document.getElementById('completed'));
+</script>
+</body>
+</html>
