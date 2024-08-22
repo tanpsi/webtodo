@@ -88,16 +88,11 @@ list-style: square url('checkbox.png');
 <div class="items">
 <h4>ToDo:</h4>
 <ul id="items">
-	<li class="task">item 1</li>
-	<li class="task">item 2</li>
-	<li class="task">item 3</li>
 </ul>
 </div>
 <div class="items">
 <h4>Completed:</h4>
 <ul id="completed">
-	<li class="ctask" onclick="check_task(event)">done bro</li>
-	<li class="ctask">thik thik</li>
 </ul>
 </div>
 <script>
@@ -133,20 +128,33 @@ function update_tasks(d) {
 		e = document.createElement("li");
 		e.classList.add('task');
 		e.appendChild(document.createTextNode(t));
+		but = document.createElement("img");
+		but.setAttribute("src", "delete.png");
+		but.setAttribute('onclick', 'delTask(event);');
+		but.setAttribute('align', 'right');
 		e.setAttribute('onclick', 'check_task(event);');
+		e.appendChild(but);
 		document.getElementById('items').appendChild(e);
 	}
 	for (t of d['completed']) {
 		e = document.createElement("li");
 		e.classList.add('ctask');
 		e.appendChild(document.createTextNode(t));
+		but = document.createElement("img");
+		but.setAttribute("src", "delete.png");
+		but.setAttribute('onclick', 'delTask(event);');
+		but.setAttribute('align', 'right');
 		e.setAttribute('onclick', 'uncheck_task(event);');
+		e.appendChild(but);
 		document.getElementById('completed').appendChild(e);
 	}
 	store_data(data);
 }
 function addTask() {
-	data['tasks'].unshift(document.getElementById('inputfield').value);
+	v = document.getElementById('inputfield').value;
+	if (!data['tasks'].includes(v) && !data['completed'].includes(v)) {
+		data['tasks'].unshift(v);
+	}
 	document.getElementById('inputfield').value = '';
 	update_tasks(data);
 }
@@ -154,14 +162,15 @@ function delTask(event) {
 	i = event.target.parentElement.parentElement.id;
 	d = event.target.parentElement.textContent;
 	if (i == 'items') {
-		data['tasks'].filter(function(item) {
-			return item !== event.target.textContent;
+		data['tasks'] = data['tasks'].filter(function(item) {
+			return item !== d;
 		});
 	} else {
-		data['completed'].filter(function(item) {
-			return item !== event.target.textContent;
+		data['completed'] = data['completed'].filter(function(item) {
+			return item !== d;
 		});
 	}
+	update_tasks(data);
 }
 data=localStorage.getItem('data');
 if (data) {
